@@ -36,6 +36,9 @@ router.beforeEach((to, from, next) => {
 
   // 2. 定义“无需登录即可访问的白名单页面”
   const whiteList = ['/login']; 
+  if(to.path === '/login' && store.token){
+    next('/'); // 直接跳转到主页
+  }
 
   // 3. 判断：如果是白名单页面，直接放行
   if (whiteList.includes(to.path)) {

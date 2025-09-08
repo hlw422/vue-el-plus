@@ -6,5 +6,8 @@ export const userLoginStore = defineStore('userLogin', () => {
     function setToken(newtoken: string) {
         token.value = newtoken;
     }
-    return { token, setToken }
+    function logout() {
+        token.value = ''
+    }
+    return { token, setToken,logout }
 }, { persist: true })

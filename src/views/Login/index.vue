@@ -43,6 +43,13 @@
 <script setup>
 import { ref } from "vue";
 
+import { userLoginStore } from "@/stores/userLogin";
+import{ generateUUID}from "@/utils/common";
+import router from "@/router";
+import { useRouter } from "vue-router";
+
+const routerJump = useRouter();
+
 const loginForm = ref({
   username: "",
   password: ""
@@ -54,11 +61,14 @@ const rules = {
 };
 
 const loginFormRef = ref(null);
+const store = userLoginStore();
 
 const handleLogin = () => {
   loginFormRef.value.validate((valid) => {
     if (valid) {
       console.log("登录信息：", loginForm.value);
+      store.setToken(generateUUID());
+      routerJump.push("/");
       // 这里可以替换成你的接口请求
       // axios.post("/api/login", loginForm.value).then(...)
     }

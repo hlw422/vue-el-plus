@@ -3,7 +3,20 @@
     <el-container class="home-container" v-if="store.token">
       <el-header>
         <div style="background-color: aqua; width: 100%; height: 60px">
-          header
+          <div class="header-content">
+            <img
+              src="https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
+              style="width: 60px; height: 60px; margin-right: 10px"
+            />
+            <el-row :gutter="20">
+              <el-col :span="12">
+                <el-button type="primary" @click="logout">注册</el-button>
+              </el-col>
+              <el-col :span="12">
+                <el-button type="primary" @click="logout">登录</el-button>
+              </el-col>
+            </el-row>
+          </div>
         </div>
       </el-header>
       <el-container>
@@ -55,22 +68,31 @@
             <router-view />
           </el-main>
           <el-footer>
-            <div>
-              copyright © 2025
-            </div>
+            <div>copyright © 2025</div>
           </el-footer>
         </el-container>
       </el-container>
-   
     </el-container>
-        <router-view v-else />
+    <router-view v-else />
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 import { userLoginStore } from "@/stores/userLogin";
+import router from "./router";
+import { useRouter } from "vue-router";
+const routerJump = useRouter();
 
-const store = userLoginStore(); 
+const store = userLoginStore();
+
+const login = () => {
+  routerJump.push("/login");
+};
+
+const logout = () => {
+  store.logout();
+  routerJump.push("/login");
+};
 </script>
 <style scoped>
 .home-container {
@@ -85,8 +107,15 @@ const store = userLoginStore();
   padding: 0; /* 去掉内边距 */
 }
 .el-footer {
-    color: #cccccc;
-    text-align: center;
-    line-height: 60px;
+  color: #cccccc;
+  text-align: center;
+  line-height: 60px;
+}
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 20px;
 }
 </style>
