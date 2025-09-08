@@ -48,6 +48,13 @@ import{ generateUUID}from "@/utils/common";
 import router from "@/router";
 import { useRouter } from "vue-router";
 
+import {userTest} from "@/api/userController"
+
+userTest({name: "test"}).then(res => {
+  console.log(res)
+});
+
+
 const routerJump = useRouter();
 
 const loginForm = ref({

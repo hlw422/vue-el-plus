@@ -22,6 +22,18 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
   ],
+  server: {
+    port: 3000,
+    open: true,
+    cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:9000/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
