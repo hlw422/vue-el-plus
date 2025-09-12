@@ -8,17 +8,17 @@
         ref="loginFormRef"
         label-position="top"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item label="用户名" prop="useraccount">
           <el-input
-            v-model="loginForm.username"
+            v-model="loginForm.useraccount"
             placeholder="请输入用户名"
             prefix-icon="User"
           />
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码" prop="userpassword">
           <el-input
-            v-model="loginForm.password"
+            v-model="loginForm.userpassword"
             type="password"
             placeholder="请输入密码"
             prefix-icon="Lock"
@@ -27,59 +27,68 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button
-            type="primary"
-            class="login-btn"
-            @click="handleLogin"
-          >
+          <el-button type="primary" class="login-btn" @click="handleLogin">
             登录
           </el-button>
+        </el-form-item>
+
+        <el-form-item>
+          <span>还没有账号？</span>
+          <el-button type="text" @click="toRegister">去注册</el-button>
         </el-form-item>
       </el-form>
     </el-card>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
-
+import { encrypt } from "@/utils/encry";
 import { userLoginStore } from "@/stores/userLogin";
-import{ generateUUID}from "@/utils/common";
-import router from "@/router";
+import { generateUUID } from "@/utils/common";
 import { useRouter } from "vue-router";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { userLogin } from "@/api/userController";
 
-import {userTest} from "@/api/userController"
+const router = useRouter();
+const store = userLoginStore();
 
-userTest({name: "test"}).then(res => {
-  console.log(res)
-});
-
-
-const routerJump = useRouter();
-
-const loginForm = ref({
-  username: "",
-  password: ""
+const loginForm = ref<API.UserLoginRequest>({
+  useraccount: "",
+  userpassword: "",
 });
 
 const rules = {
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 };
 
-const loginFormRef = ref(null);
-const store = userLoginStore();
+const loginFormRef = ref<FormInstance>();
 
 const handleLogin = () => {
-  loginFormRef.value.validate((valid) => {
+  loginFormRef.value?.validate((valid) => {
     if (valid) {
-      console.log("登录信息：", loginForm.value);
-      store.setToken(generateUUID());
-      routerJump.push("/");
-      // 这里可以替换成你的接口请求
-      // axios.post("/api/login", loginForm.value).then(...)
+      const hashedPassword = encrypt(loginForm.value.userpassword);
+      //loginForm.value.userpassword = hashedPassword;
+
+      userLogin({
+        useraccount: loginForm.value.useraccount,
+        userpassword: hashedPassword
+      }).then((res) => {
+        if (res.data.code == 0) {
+          userLoginStore().setToken(res.data.data.token);
+          ElMessage.success("登录成功");
+          router.push("/");
+        } else {
+          ElMessage.error(res.data.message);
+        }
+      });
     }
   });
+};
+
+const toRegister = () => {
+  router.push("/register");
 };
 </script>
 
@@ -90,22 +99,18 @@ const handleLogin = () => {
   align-items: center;
   height: 100vh;
   background: #f0f2f5;
-  overflow: hidden;
 }
-
 .login-card {
   width: 400px;
   padding: 20px;
   border-radius: 12px;
 }
-
 .title {
   text-align: center;
   margin-bottom: 20px;
   font-size: 22px;
   color: #333;
 }
-
 .login-btn {
   width: 100%;
 }
